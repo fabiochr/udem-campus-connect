@@ -1,0 +1,251 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  
+  /* UdeM Brand Colors */
+  --udem-blue: #0055A4;
+  --udem-red: #ED2939;
+  --udem-blue-light: #E6F0F9;
+  --udem-red-light: #FCE8EB;
+  
+  /* Background Colors */
+  --background: #F8F9FA;
+  --foreground: #1A1A2E;
+  
+  /* Card & Surface */
+  --card: #ffffff;
+  --card-foreground: #1A1A2E;
+  
+  /* Popover */
+  --popover: #ffffff;
+  --popover-foreground: #1A1A2E;
+  
+  /* Primary (UdeM Blue) */
+  --primary: #0055A4;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary (UdeM Red) */
+  --secondary: #ED2939;
+  --secondary-foreground: #ffffff;
+  
+  /* Muted */
+  --muted: #F1F3F5;
+  --muted-foreground: #6C757D;
+  
+  /* Accent */
+  --accent: #E6F0F9;
+  --accent-foreground: #0055A4;
+  
+  /* Destructive */
+  --destructive: #ED2939;
+  --destructive-foreground: #ffffff;
+  
+  /* Border & Input */
+  --border: rgba(0, 0, 0, 0.08);
+  --input: transparent;
+  --input-background: #ffffff;
+  --input-border: #E1E8ED;
+  
+  /* Switch */
+  --switch-background: #D1D5DB;
+  
+  /* Font Weights */
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  
+  /* Ring */
+  --ring: #0055A4;
+  
+  /* Border Radius */
+  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  
+  /* Charts */
+  --chart-1: #0055A4;
+  --chart-2: #ED2939;
+  --chart-3: #3B82F6;
+  --chart-4: #F59E0B;
+  --chart-5: #10B981;
+  
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1A1A2E;
+  --sidebar-primary: #0055A4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F8F9FA;
+  --sidebar-accent-foreground: #1A1A2E;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #0055A4;
+}
+
+.dark {
+  --background: #1A1A2E;
+  --foreground: #F8F9FA;
+  --card: #2D2D44;
+  --card-foreground: #F8F9FA;
+  --popover: #2D2D44;
+  --popover-foreground: #F8F9FA;
+  --primary: #0055A4;
+  --primary-foreground: #ffffff;
+  --secondary: #ED2939;
+  --secondary-foreground: #ffffff;
+  --muted: #2D2D44;
+  --muted-foreground: #9CA3AF;
+  --accent: #2D2D44;
+  --accent-foreground: #F8F9FA;
+  --destructive: #ED2939;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #0055A4;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --chart-1: #3B82F6;
+  --chart-2: #F87171;
+  --chart-3: #60A5FA;
+  --chart-4: #FBBF24;
+  --chart-5: #34D399;
+  --sidebar: #2D2D44;
+  --sidebar-foreground: #F8F9FA;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1A1A2E;
+  --sidebar-accent-foreground: #F8F9FA;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #3B82F6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-input-border: var(--input-border);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  
+  /* UdeM Colors */
+  --color-udem-blue: var(--udem-blue);
+  --color-udem-red: var(--udem-red);
+  --color-udem-blue-light: var(--udem-blue-light);
+  --color-udem-red-light: var(--udem-red-light);
+  
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  /* Border Radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}

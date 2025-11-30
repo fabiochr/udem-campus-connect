@@ -1,0 +1,39 @@
+# ================================
+#  GLOBAL IGNORE RULES
+# ================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ================================
+#  FRONTEND (React / CRA)
+# ================================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*
+
+# ================================
+#  BACKEND (Python / FastAPI)
+# ================================
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
+backend/.env
+backend/.env.local
+
+# ================================
+#  ROOT FILES
+# ================================
+node_modules/
+dist/
+build/
+.env
+.env.*
+*.log
+
+# Test coverage
+coverage/
