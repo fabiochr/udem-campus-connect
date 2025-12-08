@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/LanguageContext';
-import { apiService } from '../../services/api';
+import { apiService, API_BASE_URL } from '../../services/api';
 import { StudentProfile } from '../../types';
 import { Loader } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface StudentProfileWithEmail extends StudentProfile {
 }
 
 const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => {
-  const { t, setCurrentStudent, language } = useApp();
+  const { t, setCurrentStudent, language, setLanguage } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Omit<StudentProfileWithEmail, 'name' | 'email' | 'id'>>({
     interests: [],
@@ -24,7 +24,10 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
     bio: '',
   });
   const [name, setName] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+
 
   // Only EN and FR languages
   const languageOptions = ['en', 'fr'];
@@ -48,52 +51,109 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim();
+
+    if (!trimmedName || !trimmedEmail || !trimmedUsername) {
+      alert('Please fill in name, username and email.');
+      return;
+    }
 
     setIsLoading(true);
+
     try {
-      // Create student data with email AND id
-      const studentData = {
-        id: `student-${Date.now()}`, // ADD THIS TEMPORARY ID
-        name: name.trim(),
-        email: email.trim(),
-        interests: formData.interests,
-        languages: formData.languages,
-        french_level: formData.french_level,
-        looking_for: formData.looking_for,
-        bio: formData.bio,
-        avatar_url: undefined,
-        created_at: new Date()
-      };
-      
-      console.log('Sending data:', studentData);
-      
-      // Register with backend - use type assertion if needed
-      const response = await apiService.registerStudent(studentData as any);
-      console.log('Registration successful:', response.data);
-      
-      // Set current student in context
-      setCurrentStudent(studentData as any);
-      
-      // CALL THE COMPLETION CALLBACK
-      if (onComplete) {
-        onComplete(studentData);
+      let avatarUrl: string | undefined;
+
+      // 1) Try uploading avatar – but don't block profile creation if it fails
+      if (avatarFile) {
+        try {
+          const uploadRes = await apiService.uploadAvatar(avatarFile);
+          const uploadedPath =
+            (uploadRes.data && (uploadRes.data.path || uploadRes.data.url)) || '';
+
+          if (uploadedPath) {
+            avatarUrl = uploadedPath.startsWith('http')
+              ? uploadedPath
+              : `${API_BASE_URL}${uploadedPath}`;
+          }
+        } catch (uploadError: any) {
+          console.error('Avatar upload failed:', uploadError);
+          alert(
+            'Avatar upload failed. Your profile will be created without the photo.'
+          );
+        }
       }
+
+      // 2) Build the student payload
+      const studentData = {
+        id: `student-${Date.now()}`,
+        name: trimmedName,
+        username: trimmedUsername,
+        email: trimmedEmail,
+        interests: formData.interests || [],
+        languages: formData.languages || [],
+        french_level: formData.french_level || 'A1',
+        looking_for: formData.looking_for || [],
+        bio: formData.bio || '',
+        avatar_url: avatarUrl,
+        created_at: new Date(),
+      };
+
+      console.log('Sending data:', studentData);
+
+      // 3) Call backend
+      const response = await apiService.registerStudent(studentData);
+      console.log('Register response:', response.data);
+      const saved = (response.data as any).student || studentData;
+
+      // 4) Save to global context + notify parent
+      setCurrentStudent(saved);
+      onComplete?.(saved);
     } catch (error: any) {
-      console.error('Registration failed:', error);
-      console.error('Error details:', error.response?.data);
-      alert(`Registration failed: ${error.response?.data?.detail || 'Please try again.'}`);
+      console.error('Error during onboarding:', error);
+      const detail =
+        error?.response?.data?.detail ||
+        error?.message ||
+        'Unknown error. Please try again.';
+      alert(`Error creating profile: ${detail}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Create Your Profile
-      </h2>
-
+    return (
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {language === 'fr' ? 'Crée ton profil' : 'Create Your Profile'}
+          </h2>
+          <div className="flex items-center gap-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setLanguage('en')}
+              className={`px-2 py-1 rounded-lg border ${
+                language === 'en'
+                  ? 'bg-[#0055A4] text-white border-[#0055A4]'
+                  : 'bg-white text-gray-700 border-gray-300'
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('fr')}
+              className={`px-2 py-1 rounded-lg border ${
+                language === 'fr'
+                  ? 'bg-[#0055A4] text-white border-[#0055A4]'
+                  : 'bg-white text-gray-700 border-gray-300'
+              }`}
+            >
+              FR
+            </button>
+          </div>
+        </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name */}
         <div>
@@ -109,7 +169,25 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
             required
           />
         </div>
-
+        {/* Username */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {language === 'fr' ? "Nom d'utilisateur *" : 'Username *'}
+          </label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-udem-blue"
+            placeholder={language === 'fr' ? 'ex. tito123' : 'e.g. tito123'}
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {language === 'fr'
+              ? 'Utilisé pour la connexion. Facile à retenir.'
+              : 'Used for login. Easy to remember.'}
+          </p>
+        </div>        
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -138,7 +216,28 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
             placeholder="Tell us about yourself, your studies, and what you're looking for..."
           />
         </div>
-
+        {/* Profile photo URL (optional) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {language === 'fr'
+              ? "Format recommandé : image carrée (au moins 400x400). L'image sera affichée en cercle."
+              : 'Recommended: square image (at least 400x400). The picture will be shown as a circle.'}
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setAvatarFile(file);
+            }}
+            className="w-full text-sm text-gray-700"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {language === 'fr'
+              ? 'Choisissez une photo depuis votre ordinateur ou téléphone.'
+              : 'Choose a photo from your computer or phone.'}
+          </p>
+        </div>
         {/* French Level */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -242,7 +341,12 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading || !name.trim() || !email.trim()}
+            disabled={
+              isLoading ||
+              !name.trim() ||
+              !email.trim() ||
+              !username.trim()
+            }
           className="w-full bg-udem-blue text-white py-3 rounded-lg hover:bg-udem-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center font-semibold"
         >
           {isLoading ? (

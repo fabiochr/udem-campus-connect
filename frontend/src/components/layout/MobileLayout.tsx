@@ -9,10 +9,10 @@ interface MobileLayoutProps {
   setCurrentView: (view: string) => void;
 }
 
-const MobileLayout: React.FC<MobileLayoutProps> = ({ 
-  children, 
-  currentView, 
-  setCurrentView 
+const MobileLayout: React.FC<MobileLayoutProps> = ({
+  children,
+  currentView,
+  setCurrentView,
 }) => {
   const [showSocialMenu, setShowSocialMenu] = useState(false);
 
@@ -21,27 +21,35 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
     console.log(`Navigating to: ${view}`);
   };
 
+  const handleSocialClick = () => {
+    setShowSocialMenu((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header with Profile Menu */}
-      <Header onNavigate={setCurrentView} notificationCount={3} />
+      {/* Header */}
+      <Header onNavigate={handleNavigation} notificationCount={3} />
 
-      {/* Main Content */}
+      {/* Main content */}
       <main className="flex-1 overflow-auto pb-20 px-4">
         {children}
       </main>
 
-      {/* Bottom Navigation */}
-      <BottomNavigation 
-        currentView={currentView} 
-        setCurrentView={handleNavigation} 
+      {/* Bottom navigation */}
+      <BottomNavigation
+        currentView={currentView}
+        setCurrentView={handleNavigation}
+        onSocialClick={handleSocialClick}
       />
 
-      {/* Social Menu Modal */}
-      <SocialMenu 
+      {/* Social menu modal */}
+      <SocialMenu
         isOpen={showSocialMenu}
         onClose={() => setShowSocialMenu(false)}
-        onNavigate={setCurrentView}
+        onNavigate={(view) => {
+          setCurrentView(view);
+          setShowSocialMenu(false);
+        }}
       />
     </div>
   );

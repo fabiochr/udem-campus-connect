@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '../../contexts/LanguageContext';
 
 interface HeaderProps {
   onNavigate?: (view: string) => void;
@@ -14,12 +15,13 @@ interface MenuItem {
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, notificationCount = 0 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const { language, setLanguage } = useApp();
 
   const profileItems: MenuItem[] = [
-    { id: 'notifications', label: 'Notifications', icon: '🔔', count: notificationCount },
-    { id: 'account', label: 'Account Settings', icon: '⚙️' },
-    { id: 'language', label: 'Language Preferences', icon: '🌐' },
-    { id: 'help', label: 'Help & Support', icon: '❓' },
+    { id: 'notifications', label: 'Notifications (soon)', icon: '🔔', count: notificationCount },
+    { id: 'account', label: 'Account Settings (soon)', icon: '⚙️' },
+    { id: 'language', label: 'Language / Langue', icon: '🌐' },
+    { id: 'help', label: 'Help & Support (soon)', icon: '❓' },
     { id: 'logout', label: 'Logout', icon: '🚪' },
   ];
 
@@ -29,10 +31,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, notificationCount = 0 }) =>
         {/* Logo with UdeM Colors */}
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-[#0055A4] rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-bold">M</span>
+            <span className="text-white text-sm font-bold">UdM</span>
           </div>
           <h1 className="text-xl font-bold text-[#0055A4]">
-            MontrealCampus
+            UdeM Montreal Campus
           </h1>
         </div>
 
@@ -63,7 +65,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, notificationCount = 0 }) =>
                 <button
                   key={item.id}
                   onClick={() => {
-                    onNavigate?.(item.id);
+                    if (item.id === 'language') {
+                      // toggle language between en & fr
+                      setLanguage(language === 'en' ? 'fr' : 'en');
+                    } else {
+                      onNavigate?.(item.id);
+                    }
                     setShowProfileMenu(false);
                   }}
                   className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"

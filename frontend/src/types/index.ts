@@ -3,6 +3,7 @@ export interface StudentProfile {
   id?: string; // ADD THIS
   name: string;
   email: string;
+  username?: string;
   interests: string[];
   languages: string[];
   french_level: string;

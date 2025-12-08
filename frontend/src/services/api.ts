@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { StudentProfile, MatchResult } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+// const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'https://20716d1d0897.ngrok-free.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -18,6 +19,14 @@ export const apiService = {
   
   getMatches: (studentName: string, language: string = 'en') => 
     api.get(`/api/students/matches/${studentName}?language=${language}`),
+
+  uploadAvatar: (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // Use axios directly to avoid JSON headers
+  return axios.post(`${API_BASE_URL}/api/upload-avatar`, formData);
+},
   
   // CONNECTION SYSTEM - NEW
   connectWithStudent: (studentId: string, partnerId: string) =>

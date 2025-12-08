@@ -1,5 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi import File, UploadFile
+from uuid import uuid4
+import os
 from database_sync import database, get_students_collection
 from ai_matcher import BilingualAIMatcher, StudentProfile, MatchResult
 from typing import List
@@ -9,10 +13,12 @@ from pymongo import ReturnDocument
 from pydantic import BaseModel
 
 app = FastAPI(
-    title="MontrealCampus Connect API",
+    title="UdeM Campus Connect API",
     description="Bilingual student connection platform for Université de Montréal",
     version="2.0.0"
 )
+os.makedirs("static/avatars", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Enable CORS for frontend development
 app.add_middleware(
@@ -28,18 +34,18 @@ matcher = BilingualAIMatcher()
 # Connect to MongoDB on startup
 @app.on_event("startup")
 def startup_event():
-    print("🚀 Starting MontrealCampus Connect API...")
+    print("🚀 Starting UdeM Campus Connect API...")
     database.connect()
 
 @app.on_event("shutdown")
 def shutdown_event():
-    print("👋 Shutting down MontrealCampus Connect API...")
+    print("👋 Shutting down UdeM Campus Connect API...")
     database.close()
 
 @app.get("/")
 async def root():
     return {
-        "message": "🎓 MontrealCampus Connect API is running!",
+        "message": "🎓 UdeM Campus Connect API is running!",
         "version": "2.0.0",
         "database": "MongoDB Atlas (Sync)",
         "status": "Connected" if database.is_connected else "Disconnected",
@@ -60,27 +66,68 @@ async def register_student(student: StudentProfile):
         if students_db is None:
             raise HTTPException(status_code=503, detail="Database not available")
         
-        # Check if student already exists
-        existing_student = students_db.find_one({"name": student.name})
-        if existing_student:
-            raise HTTPException(status_code=400, detail="Student already exists")
-        
+        # Check if a student already exists with same username or email
+        query = {
+            "$or": [
+                {"username": student.username} if student.username else {},
+                {"email": student.email}
+            ]
+        }
+        # Clean out any empty dict from the $or
+        query["$or"] = [cond for cond in query["$or"] if cond]
+
+        if query["$or"]:
+            existing_student = students_db.find_one(query)
+            if existing_student:
+                raise HTTPException(
+                    status_code=400,
+                    detail="A student with this username or email already exists"
+                )
+
         # Convert to dict and insert
         student_data = student.dict()
-        student_data["created_at"] = datetime.utcnow()
+        if not student_data.get("created_at"):
+            from datetime import datetime
+            student_data["created_at"] = datetime.utcnow()
+
         result = students_db.insert_one(student_data)
-        
-        # Return the created student with ID
+        student_data["_id"] = str(result.inserted_id)
+
         return {
             "message": "✅ Student registered successfully!",
             "student_id": str(result.inserted_id),
-            "student": {**student_data, "_id": str(result.inserted_id)}
+            "student": student_data,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+        print(f"Error in register_student: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error registering student")
+
+@app.post("/api/upload-avatar")
+async def upload_avatar(file: UploadFile = File(...)):
+    """Upload a profile avatar image and return its path."""
+    try:
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="File must be an image")
+
+        ext = os.path.splitext(file.filename)[1] or ".jpg"
+        filename = f"{uuid4().hex}{ext}"
+        avatar_dir = os.path.join("static", "avatars")
+        os.makedirs(avatar_dir, exist_ok=True)
+        file_path = os.path.join(avatar_dir, filename)
+
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+
+        # Return a relative path; frontend will build full URL
+        return {"path": f"/static/avatars/{filename}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("Error uploading avatar:", e)
+        raise HTTPException(status_code=500, detail="Error uploading avatar")
 
 @app.get("/api/students/matches/{student_name}")
 async def get_matches(student_name: str, language: str = "en"):
@@ -90,7 +137,12 @@ async def get_matches(student_name: str, language: str = "en"):
         if students_db is None:
             raise HTTPException(status_code=503, detail="Database not available")
             
-        student = students_db.find_one({"name": student_name})
+        student = students_db.find_one({
+            "$or": [
+                {"username": student_name},
+                {"name": student_name}
+            ]
+        })
         if not student:
             raise HTTPException(status_code=404, detail="❌ Student not found")
         
@@ -162,17 +214,23 @@ async def get_all_students():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch students: {str(e)}")
 
-@app.get("/api/students/{student_name}")
-async def get_student(student_name: str):
-    """Get a specific student's profile"""
+@app.get("/api/students/{value}")
+async def get_student(value: str):
+    """Get a specific student's profile by username OR name"""
     try:
         students_db = get_students_collection()
         if students_db is None:
             raise HTTPException(status_code=503, detail="Database not available")
             
-        student = students_db.find_one({"name": student_name})
+        student = students_db.find_one({
+            "$or": [
+                {"username": value},
+                {"name": value}
+            ]
+        })
         if not student:
             raise HTTPException(status_code=404, detail="Student not found")
+
         
         student["_id"] = str(student["_id"])
         return student

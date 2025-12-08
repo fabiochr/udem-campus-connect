@@ -16,6 +16,7 @@ class StudentProfile(BaseModel):
     french_level: str
     looking_for: List[str]
     bio: str
+    username: Optional[str] = None
     avatar_url: Optional[str] = None
     created_at: datetime = datetime.utcnow()
 

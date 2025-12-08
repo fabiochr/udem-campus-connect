@@ -38,7 +38,7 @@ const SocialMenu: React.FC<SocialMenuProps> = ({ isOpen, onClose, onNavigate }) 
                 onNavigate(item.id);
                 onClose();
               }}
-              className="flex items-center space-x-3 w-full p-3 rounded-lg hover:bg-blue-50 transition-colors text-left"
+              className="flex items-center space-x-3 w-full p-3 rounded-lg hover:bg-[#E6F0F9] transition-colors text-left"
             >
               <span className="text-2xl">{item.icon}</span>
               <div className="flex-1">

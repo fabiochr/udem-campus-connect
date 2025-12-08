@@ -31,13 +31,13 @@ class MongoDB:
                 serverSelectionTimeoutMS=30000,
                 connectTimeoutMS=30000
             )
-            self.db = self.client.montreal_campus
+            self.db = self.client.udem_campus_connect
             
             # Test connection
             self.client.admin.command('ping')
             self.is_connected = True
             print("✅ Successfully connected to MongoDB Atlas!")
-            print("📊 Database: montreal_campus")
+            print("📊 Database: udem_campus_connects")
             return True
             
         except Exception as e:
