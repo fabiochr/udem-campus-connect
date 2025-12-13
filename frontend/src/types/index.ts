@@ -1,15 +1,32 @@
 // Core data types matching our backend
+export interface SocialLinks {
+  instagram?: string;
+  whatsapp?: string;
+  linkedin?: string;
+}
+export interface PrivacySettings {
+  showEmail?: boolean;
+  showSocials?: boolean;
+}
+
 export interface StudentProfile {
   id?: string; // ADD THIS
   name: string;
-  email: string;
-  username?: string;
+  email?: string;
+  username?: string;  
+  program?: string;
+  faculty?: string;
+  countryOfOrigin?: string;
+  arrivalDate?: string;  
   interests: string[];
   languages: string[];
   french_level: string;
   looking_for: string[];
+  displayName?: string;
   bio: string;
   avatar_url?: string;
+  socialLinks?: SocialLinks;
+  privacy?: PrivacySettings;
   created_at?: Date;
 }
 
@@ -33,6 +50,11 @@ export interface AppContextType {
   setCurrentStudent: (student: StudentProfile | null) => void;
   t: (key: string) => string;
   logout?: () => void; // ADD THIS
+}
+
+export interface StudentProfileWithEmail extends StudentProfile {
+  name: string;
+  email: string;
 }
 
 // Language dictionary type

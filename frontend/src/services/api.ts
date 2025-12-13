@@ -55,6 +55,18 @@ export const apiService = {
   suggestChallenges: (studentName: string, language: string = 'en') => 
     api.get(`/api/challenges/suggest/${studentName}?language=${language}`),
   healthCheck: () => api.get('/api/health'),
+
+  async updateStudentProfile(
+    studentId: string,
+    payload: Partial<StudentProfile>
+  ) {
+    // adjust URL to match your backend route if needed
+    return await axios.patch(`/students/${studentId}`, payload);
+  },
+
+  async getMyProfile(studentId: string) {
+    return await axios.get(`/students/${studentId}`);
+  },
 };
 
 export default api;

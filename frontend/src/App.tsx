@@ -10,75 +10,80 @@ import LoginPage from './pages/LoginPage';
 import type { StudentProfile } from './types';
 
 const STORAGE_KEY = 'udemCampusUser';
+const WELCOME_KEY = 'udemCampusHasSeenWelcome';
+
+type Screen = 'LOADING' | 'WELCOME' | 'LOGIN' | 'ONBOARDING' | 'APP';
 
 const AppContent: React.FC = () => {
-  const { setCurrentStudent } = useApp();
+  const { setCurrentStudent, currentStudent } = useApp();
   const [currentView, setCurrentView] = useState<string>('home');
-  const [isLoading, setIsLoading] = useState(true);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+  const [screen, setScreen] = useState<Screen>('LOADING');
 
-  // Check if a student is already saved locally
+  // Initial load: decide which screen to show
   useEffect(() => {
-    const checkUserSession = () => {
+    const initialize = () => {
       try {
         const savedUser = localStorage.getItem(STORAGE_KEY);
 
         if (savedUser) {
           const userData = JSON.parse(savedUser);
           setCurrentStudent(userData);
-          setShowWelcome(false);
-          setShowOnboarding(false);
-          setShowLogin(false);
-        } else {
-          // First time: show welcome, not login
-          setShowWelcome(true);
+          setScreen('APP');
+          return;
         }
+
+        // No saved user: decide between Welcome and Login
+        const hasSeenWelcome = localStorage.getItem(WELCOME_KEY) === 'true';
+        setScreen(hasSeenWelcome ? 'LOGIN' : 'WELCOME');
       } catch (error) {
         console.error('Error checking user session:', error);
-        setShowWelcome(true);
-      } finally {
-        setIsLoading(false);
+        setScreen('LOGIN');
       }
     };
 
-    checkUserSession();
+    initialize();
   }, [setCurrentStudent]);
 
-  const handleOnboardingComplete = (userData: StudentProfile) => {
+  const persistUserAndEnterApp = (userData: StudentProfile) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
     setCurrentStudent(userData);
-    setShowOnboarding(false);
-    setShowWelcome(false);
-    setShowLogin(false);
+    setScreen('APP');
+  };
+
+  const handleOnboardingComplete = (userData: StudentProfile) => {
+    persistUserAndEnterApp(userData);
   };
 
   const handleLoginSuccess = (userData: StudentProfile) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-    setCurrentStudent(userData);
-    setShowLogin(false);
-    setShowWelcome(false);
-    setShowOnboarding(false);
+    persistUserAndEnterApp(userData);
   };
 
-  // When any part of the UI requests "logout" view, perform logout
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY);
     setCurrentStudent(null);
-    setShowWelcome(false);
-    setShowOnboarding(false);
-    setShowLogin(true); // show login instead of profile creation
     setCurrentView('home');
+    // user has already seen the welcome screen by now,
+    // so we go straight to Login
+    localStorage.setItem(WELCOME_KEY, 'true');
+    setScreen('LOGIN');
   };
 
+  // In case something weird happens: if screen says APP but no user, push to LOGIN
+  useEffect(() => {
+    if (screen === 'APP' && !currentStudent) {
+      setScreen('LOGIN');
+    }
+  }, [screen, currentStudent]);
+
+  // React to "logout" view from bottom navigation (if you keep that)
   useEffect(() => {
     if (currentView === 'logout') {
       handleLogout();
     }
   }, [currentView]);
 
-  if (isLoading) {
+  // LOADING
+  if (screen === 'LOADING') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -89,45 +94,43 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // LOGIN SCREEN (after logout, or if you later add a "Have an account?" link)
-  if (showLogin) {
+  // FIRST-TIME SPLASH / BRAND SCREEN
+  if (screen === 'WELCOME') {
+    return (
+      <WelcomeScreen
+        onGetStarted={() => {
+          // mark that we've already shown the welcome screen
+          localStorage.setItem(WELCOME_KEY, 'true');
+          setScreen('ONBOARDING');
+        }}
+        onLogin={() => {
+          localStorage.setItem(WELCOME_KEY, 'true');
+          setScreen('LOGIN');
+        }}
+      />
+    );
+  }
+
+  // LOGIN SCREEN (for returning users without session, or from Welcome)
+  if (screen === 'LOGIN') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#E6F0F9] to-[#FCE8EB] flex items-center justify-center">
         <LoginPage
           onLoginSuccess={handleLoginSuccess}
           onCreateProfile={() => {
-            setShowLogin(false);
-            setShowOnboarding(true);
+            setScreen('ONBOARDING');
           }}
         />
       </div>
     );
   }
 
-  // WELCOME (first time, no existing local user)
-  if (showWelcome) {
-  return (
-    <WelcomeScreen
-      onGetStarted={() => {
-        setShowWelcome(false);
-        setShowOnboarding(true);
-      }}
-      onLogin={() => {
-        setShowWelcome(false);
-        setShowOnboarding(false);
-        setShowLogin(true)
-        setCurrentView('login'); // whatever view triggers your existing Login page
-      }}
-    />
-  );
-}
-
-  // CREATE PROFILE / ONBOARDING
-  if (showOnboarding) {
+  // CREATE ACCOUNT / ONBOARDING
+  if (screen === 'ONBOARDING') {
     return <OnboardingPage onComplete={handleOnboardingComplete} />;
   }
 
-  // MAIN APP
+  // MAIN APP (user is authenticated)
   return (
     <MobileLayout currentView={currentView} setCurrentView={setCurrentView}>
       <DashboardPage currentView={currentView} onLogout={handleLogout} />

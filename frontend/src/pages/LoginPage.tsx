@@ -13,16 +13,22 @@ import type { StudentProfile } from '../types';
 interface LoginPageProps {
   onLoginSuccess: (student: StudentProfile) => void;
   onCreateProfile: () => void;
+  /** Called when the user reaches too many failed attempts (>= 4) */
+  onTooManyAttempts?: () => void;
 }
+
+type SocialProvider = 'facebook' | 'google' | 'apple';
 
 const LoginPage: React.FC<LoginPageProps> = ({
   onLoginSuccess,
   onCreateProfile,
+  onTooManyAttempts,
 }) => {
   const { language } = useApp();
   const [identifier, setIdentifier] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [attempts, setAttempts] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,19 +38,37 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
     setIsLoading(true);
     try {
-      // Backend now accepts username OR full name
+      // Backend accepts username OR full name
       const response = await apiService.getStudent(trimmed);
       onLoginSuccess(response.data.student || response.data);
+      setAttempts(0); // reset attempts on success
     } catch (err) {
       console.error('Login error', err);
-      setError(
+
+      const message =
         language === 'fr'
           ? "Aucun profil trouvé pour cet identifiant. Créez un nouveau profil."
-          : 'No profile found with this username or name. Create a new profile.'
-      );
+          : 'No profile found with this username or name. Create a new profile.';
+
+      setError(message);
+
+      setAttempts((prev) => {
+        const next = prev + 1;
+        if (next >= 4 && onTooManyAttempts) {
+          onTooManyAttempts();
+        }
+        return next;
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSocialLogin = (provider: SocialProvider) => {
+    // TODO: connect to your real FastAPI OAuth endpoints, e.g.:
+    // window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/${provider}`;
+    console.log(`Social login with ${provider} clicked`);
+    // For now this is just a visual / UX placeholder.
   };
 
   return (
@@ -63,7 +87,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
               : 'Sign in to continue with your profile and matches.'}
           </p>
         </UdemCardHeader>
+
         <UdemCardContent className="space-y-4">
+          {/* Identifier form (username / name) */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-700">
@@ -76,8 +102,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder={
                   language === 'fr'
-                    ? "ex. toto123 ou Toto Gus"
-                    : 'e.g. toto123 or Toto Gus'
+                    ? "ex. toto123"
+                    : 'e.g. toto123'
                 }
                 autoFocus
               />
@@ -85,7 +111,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
             {error && (
               <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                {error}
+                {error}{' '}
+                {attempts > 0 && `(${attempts}/4 ${language === 'fr' ? 'essais' : 'attempts'})`}
               </p>
             )}
 
@@ -104,6 +131,41 @@ const LoginPage: React.FC<LoginPageProps> = ({
             </UdemButton>
           </form>
 
+          {/* Divider */}
+          <div className="flex items-center py-2">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="px-3 text-xs text-gray-400">
+              {language === 'fr' ? 'OU' : 'OR'}
+            </span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* Social login buttons */}
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => handleSocialLogin('facebook')}
+              className="w-full border border-gray-300 rounded-lg py-2 text-sm flex items-center justify-center gap-2 hover:bg-gray-50"
+            >
+              <span>Continue with Facebook</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSocialLogin('google')}
+              className="w-full border border-gray-300 rounded-lg py-2 text-sm flex items-center justify-center gap-2 hover:bg-gray-50"
+            >
+              <span>Continue with Google</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSocialLogin('apple')}
+              className="w-full border border-gray-300 rounded-lg py-2 text-sm flex items-center justify-center gap-2 hover:bg-gray-50"
+            >
+              <span>Continue with Apple</span>
+            </button>
+          </div>
+
+          {/* Create profile link */}
           <div className="pt-2 text-center text-sm text-gray-600">
             {language === 'fr' ? (
               <>

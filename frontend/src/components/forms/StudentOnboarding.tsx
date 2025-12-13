@@ -92,6 +92,7 @@ const StudentOnboarding: React.FC<StudentOnboardingProps> = ({ onComplete }) => 
         name: trimmedName,
         username: trimmedUsername,
         email: trimmedEmail,
+        displayName: name,
         interests: formData.interests || [],
         languages: formData.languages || [],
         french_level: formData.french_level || 'A1',

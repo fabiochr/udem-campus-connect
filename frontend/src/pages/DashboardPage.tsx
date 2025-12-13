@@ -4,6 +4,7 @@ import MatchList from '../components/matching/MatchList';
 import ChallengeList from '../components/challenges/ChallengeList';
 import { StudentProfile } from '../types';
 
+
 interface DashboardPageProps {
   currentView: string;
   onLogout?: () => void;
@@ -146,7 +147,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ currentView, onLogout }) 
 
     setCurrentStudent(updated);
     // Persist to localStorage so refresh keeps the new info
-    localStorage.setItem('montrealCampusUser', JSON.stringify(updated));
+    localStorage.setItem('udemCampusUser', JSON.stringify(updated));
     setIsEditingProfile(false);
   };
 
