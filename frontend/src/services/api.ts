@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { StudentProfile, MatchResult } from '../types';
 
-// const API_BASE_URL = 'http://localhost:8000';
-export const API_BASE_URL = 'https://20716d1d0897.ngrok-free.app';
+export const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

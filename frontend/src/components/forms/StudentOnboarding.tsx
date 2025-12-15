@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/LanguageContext';
-import { apiService, API_BASE_URL } from '../../services/api';
+import API_BASE_URL,{ apiService } from '../../services/api';
 import { StudentProfile } from '../../types';
 import { Loader } from 'lucide-react';
 
