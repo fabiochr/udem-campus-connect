@@ -24,6 +24,25 @@ backend/*.pyc
 backend/venv/
 backend/.env
 backend/.env.local
+# Python virtual environments
+.venv/
+venv/
+.venv311/
+**/.venv/
+**/venv/
+**/.venv311/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
 
 # ================================
 #  ROOT FILES
