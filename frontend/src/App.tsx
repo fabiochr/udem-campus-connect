@@ -32,7 +32,6 @@ const AppContent: React.FC = () => {
           return;
         }
 
-        // No saved user: decide between Welcome and Login
         const hasSeenWelcome = localStorage.getItem(WELCOME_KEY) === 'true';
         setScreen(hasSeenWelcome ? 'LOGIN' : 'WELCOME');
       } catch (error) {
@@ -62,27 +61,24 @@ const AppContent: React.FC = () => {
     localStorage.removeItem(STORAGE_KEY);
     setCurrentStudent(null);
     setCurrentView('home');
-    // user has already seen the welcome screen by now,
-    // so we go straight to Login
     localStorage.setItem(WELCOME_KEY, 'true');
     setScreen('LOGIN');
   };
 
-  // In case something weird happens: if screen says APP but no user, push to LOGIN
+  // Safety net: if screen says APP but there is no user, go to LOGIN
   useEffect(() => {
     if (screen === 'APP' && !currentStudent) {
       setScreen('LOGIN');
     }
   }, [screen, currentStudent]);
 
-  // React to "logout" view from bottom navigation (if you keep that)
+  // If bottom nav uses "logout" virtual view
   useEffect(() => {
     if (currentView === 'logout') {
       handleLogout();
     }
   }, [currentView]);
 
-  // LOADING
   if (screen === 'LOADING') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -94,12 +90,10 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // FIRST-TIME SPLASH / BRAND SCREEN
   if (screen === 'WELCOME') {
     return (
       <WelcomeScreen
         onGetStarted={() => {
-          // mark that we've already shown the welcome screen
           localStorage.setItem(WELCOME_KEY, 'true');
           setScreen('ONBOARDING');
         }}
@@ -111,7 +105,6 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // LOGIN SCREEN (for returning users without session, or from Welcome)
   if (screen === 'LOGIN') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#E6F0F9] to-[#FCE8EB] flex items-center justify-center">
@@ -120,20 +113,25 @@ const AppContent: React.FC = () => {
           onCreateProfile={() => {
             setScreen('ONBOARDING');
           }}
+          onTooManyAttempts={() => {
+            // after 4 failed logins → send user back to Welcome
+            localStorage.removeItem(WELCOME_KEY); // so welcome appears again
+            setScreen('WELCOME');
+          }}
         />
       </div>
     );
   }
 
-  // CREATE ACCOUNT / ONBOARDING
   if (screen === 'ONBOARDING') {
     return <OnboardingPage onComplete={handleOnboardingComplete} />;
   }
 
-  // MAIN APP (user is authenticated)
   return (
     <MobileLayout currentView={currentView} setCurrentView={setCurrentView}>
-      <DashboardPage currentView={currentView} onLogout={handleLogout} />
+      <DashboardPage currentView={currentView} 
+       setCurrentView={setCurrentView}
+       onLogout={handleLogout} />
     </MobileLayout>
   );
 };

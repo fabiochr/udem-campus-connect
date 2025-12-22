@@ -3,10 +3,13 @@ import { useApp } from '../contexts/LanguageContext';
 import MatchList from '../components/matching/MatchList';
 import ChallengeList from '../components/challenges/ChallengeList';
 import { StudentProfile } from '../types';
+import SocialHub from "../components/social/SocialHub";
+
 
 
 interface DashboardPageProps {
   currentView: string;
+  setCurrentView: (view: string) => void;
   onLogout?: () => void;
 }
 
@@ -18,7 +21,10 @@ type EditForm = {
   languages: string[];
 };
 
-const DashboardPage: React.FC<DashboardPageProps> = ({ currentView, onLogout }) => {
+const DashboardPage: React.FC<DashboardPageProps> = ({
+  currentView,
+  setCurrentView,
+  onLogout }) => {
   const { currentStudent, language, setCurrentStudent } = useApp() as any;
 
   // -----------------------------
@@ -156,8 +162,73 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ currentView, onLogout }) 
   // --------------------------
   const renderContent = () => {
     switch (currentView) {
-      case 'social':
+      case 'social': {
+      const socialItems = [
+        { id: 'matches', label: language === 'en' ? 'Find Matches' : 'Trouver des matchs', desc: language === 'en' ? 'Connect with language partners' : 'Se connecter avec des partenaires de langue' },
+        { id: 'challenges', label: language === 'en' ? 'Study Challenges' : 'Défis d’étude', desc: language === 'en' ? 'Join academic challenges' : 'Rejoindre des défis académiques' },
+        { id: 'campus-map', label: language === 'en' ? 'Campus Map' : 'Carte du campus', desc: language === 'en' ? 'Explore campuses' : 'Explorer les campus' },
+        { id: 'forum', label: language === 'en' ? 'Student Forum' : 'Forum étudiant', desc: language === 'en' ? 'Discuss with peers' : 'Discuter avec des étudiants' },
+        { id: 'marketplace', label: language === 'en' ? 'Marketplace' : 'Marketplace', desc: language === 'en' ? 'Buy/sell student items' : 'Acheter/vendre des items étudiants' },
+      ];
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-xl font-bold text-gray-900">
+        {language === 'en' ? 'Social Hub' : 'Hub Social'}
+      </h3>
+
+      <div className="space-y-2">
+        {socialItems.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setCurrentView(item.id)}
+            className="w-full text-left p-4 rounded-xl border bg-white hover:bg-[#E6F0F9] transition-colors"
+          >
+            <div className="font-semibold text-gray-900">{item.label}</div>
+            <div className="text-sm text-gray-600">{item.desc}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+      case 'matches':
         return <MatchList />;
+
+      case 'challenges':
+        return <ChallengeList />;
+
+      case 'campus-map':
+        return (
+          <div>
+            <h3 className="text-xl font-bold">{language === 'en' ? 'Campus Map' : 'Carte du campus'}</h3>
+            <p className="text-gray-600 mt-2">
+              {language === 'en' ? 'Campus map page coming soon.' : 'Page carte du campus à venir.'}
+            </p>
+          </div>
+        );
+
+      case 'forum':
+        return (
+          <div>
+            <h3 className="text-xl font-bold">{language === 'en' ? 'Student Forum' : 'Forum étudiant'}</h3>
+            <p className="text-gray-600 mt-2">
+              {language === 'en' ? 'Forum page coming soon.' : 'Page forum à venir.'}
+            </p>
+          </div>
+        );
+
+      case 'marketplace':
+        return (
+          <div>
+            <h3 className="text-xl font-bold">{language === 'en' ? 'Marketplace' : 'Marketplace'}</h3>
+            <p className="text-gray-600 mt-2">
+              {language === 'en' ? 'Marketplace page coming soon.' : 'Page marketplace à venir.'}
+            </p>
+          </div>
+        );
+
       case 'home':
         return (
           <div className="bg-white rounded-xl shadow-sm p-6 text-center">
@@ -200,7 +271,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ currentView, onLogout }) 
             </p>
           </div>
         );
-
       // -----------------
       // PROFILE VIEW
       // -----------------
@@ -572,7 +642,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ currentView, onLogout }) 
     <div className="min-h-screen bg-gray-50 p-4">
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">MontrealCampus Connect</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Udem Campus Connect</h1>
         <p className="text-gray-600">
           {language === 'en'
             ? 'Your student community in Montreal'

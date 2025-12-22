@@ -3,7 +3,7 @@ import React from 'react';
 interface BottomNavigationProps {
   currentView: string;
   setCurrentView: (view: string) => void;
-  onSocialClick?: () => void;
+  onSocialClick?: () => void; 
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({
@@ -24,11 +24,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const handleClick = () => {
-            if (item.id === 'social' && onSocialClick) {
-              onSocialClick();
-            } else {
-              setCurrentView(item.id);
-            }
+            setCurrentView(item.id);
           };
 
           return (
