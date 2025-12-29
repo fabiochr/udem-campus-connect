@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useApp } from '../contexts/LanguageContext';
 import MatchList from '../components/matching/MatchList';
 import ChallengeList from '../components/challenges/ChallengeList';
-import { StudentProfile } from '../types';
-import SocialHub from "../components/social/SocialHub";
-
-
+import { StudentProfile } from '../types';  
+import SocialHub from "../components/social/SocialHub"; 
+import HomeView from "../components/home/HomeView";
 
 interface DashboardPageProps {
   currentView: string;
@@ -230,19 +229,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         );
 
       case 'home':
-        return (
-          <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-            <div className="text-4xl mb-4">🏠</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              {language === 'en' ? 'Home Dashboard' : 'Tableau de bord'}
-            </h3>
-            <p className="text-gray-600">
-              {language === 'en'
-                ? 'Welcome to your student community!'
-                : 'Bienvenue dans votre communauté étudiante !'}
-            </p>
-          </div>
-        );
+        return <HomeView language={language} studentName={currentStudent?.name} />;
+        
       case 'search':
         return (
           <div className="bg-white rounded-xl shadow-sm p-6 text-center">
