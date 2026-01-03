@@ -11,6 +11,8 @@ import type { StudentProfile } from './types';
 
 const STORAGE_KEY = 'udemCampusUser';
 const WELCOME_KEY = 'udemCampusHasSeenWelcome';
+const TOKEN_KEY = 'udemCampusUserToken';
+const USER_ID = 'udemCampusUserId';
 
 type Screen = 'LOADING' | 'WELCOME' | 'LOGIN' | 'ONBOARDING' | 'APP';
 
@@ -62,6 +64,8 @@ const AppContent: React.FC = () => {
     setCurrentStudent(null);
     setCurrentView('home');
     localStorage.setItem(WELCOME_KEY, 'true');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_ID);
     setScreen('LOGIN');
   };
 
@@ -128,10 +132,16 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <MobileLayout currentView={currentView} setCurrentView={setCurrentView}>
-      <DashboardPage currentView={currentView} 
-       setCurrentView={setCurrentView}
-       onLogout={handleLogout} />
+    <MobileLayout
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+      onLogout={handleLogout}
+    >
+      <DashboardPage
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        onLogout={handleLogout}
+      />
     </MobileLayout>
   );
 };

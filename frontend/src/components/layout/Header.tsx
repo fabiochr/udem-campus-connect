@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../../contexts/LanguageContext';
 
+console.log('[Header] Rendered');
 interface HeaderProps {
   onNavigate?: (view: string) => void;
+  onLogout?: () => void;
   notificationCount?: number;
 }
 
@@ -13,7 +15,7 @@ interface MenuItem {
   count?: number; // Make count optional
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, notificationCount = 0 }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout, notificationCount = 0 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { language, setLanguage } = useApp();
 
@@ -65,12 +67,22 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, notificationCount = 0 }) =>
                 <button
                   key={item.id}
                   onClick={() => {
-                    if (item.id === 'language') {
-                      // toggle language between en & fr
-                      setLanguage(language === 'en' ? 'fr' : 'en');
-                    } else {
-                      onNavigate?.(item.id);
+                    // DEBUG: confirm click + whether handler exists
+                    if (item.id === 'logout') {
+                      console.log('[Header] Logout clicked. hasOnLogout=', !!onLogout);
+                      onLogout?.();
+                      setShowProfileMenu(false);
+                      return;
                     }
+
+                    if (item.id === 'language') {
+                      setLanguage(language === 'en' ? 'fr' : 'en');
+                      setShowProfileMenu(false);
+                      return;
+                    }
+
+                    // Phase B items (optional)
+                    alert('Coming soon');
                     setShowProfileMenu(false);
                   }}
                   className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
