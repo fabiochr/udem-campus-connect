@@ -228,8 +228,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         );
 
-      case 'home':
-        return <HomeView language={language} studentName={currentStudent?.name} />;
+      case "home":
+      return <HomeView onNavigate={setCurrentView} />;
         
       case 'search':
         return (

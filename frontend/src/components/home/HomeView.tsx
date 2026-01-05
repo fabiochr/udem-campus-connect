@@ -1,111 +1,126 @@
 import React from "react";
+import { useApp } from "../../contexts/LanguageContext";
 
 type HomeViewProps = {
-  language: "en" | "fr";
+  onNavigate: (view: string) => void;
   studentName?: string;
 };
 
-const HomeView: React.FC<HomeViewProps> = ({ language, studentName }) => {
+const HomeView: React.FC<HomeViewProps> = ({ onNavigate, studentName }) => {
+  const { language } = useApp();
+
   const t = {
-    greeting: language === "en" ? "Welcome back" : "Bon retour",
+    welcome: language === "en" ? "Welcome back" : "Bon retour",
     subtitle:
       language === "en"
-        ? "Here’s what’s happening on campus."
-        : "Voici ce qui se passe sur le campus.",
-    quickActions: language === "en" ? "Quick actions" : "Actions rapides",
-    highlights: language === "en" ? "Highlights" : "À la une",
-    upcoming: language === "en" ? "Upcoming" : "À venir",
-    empty: language === "en" ? "Coming soon." : "À venir.",
+        ? "What would you like to explore today?"
+        : "Que souhaitez-vous explorer aujourd’hui ?",
+    explore: language === "en" ? "Explore Campus" : "Explorer le campus",
+    forum: language === "en" ? "Join Forum" : "Forum",
+    matches: language === "en" ? "Find Matches" : "Trouver des matchs",
+    events: language === "en" ? "Events" : "Événements",
   };
 
   return (
-    <div className="p-4 space-y-4">
-      {/* Header / Greeting */}
-      <div className="bg-white rounded-2xl border shadow-sm p-4">
-        <div className="text-sm text-gray-600">{t.greeting}{studentName ? `, ${studentName}` : ""} 👋</div>
-        <div className="text-xl font-bold text-gray-900 mt-1">UdeM Campus Connect</div>
-        <div className="text-sm text-gray-600 mt-1">{t.subtitle}</div>
-      </div>
+    <div className="px-4 py-6">
+      <div className="mx-auto max-w-6xl space-y-10">
+        {/* Greeting */}
+        <section>
+          <p className="text-sm text-gray-600">
+            {t.welcome}
+            {studentName ? `, ${studentName}` : ""} 👋
+          </p>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">
+            UdeM Campus Connect
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">{t.subtitle}</p>
+        </section>
 
-      {/* Quick Actions (will be styled to match home.jpg later) */}
-      <div className="bg-white rounded-2xl border shadow-sm p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="font-semibold text-gray-900">{t.quickActions}</div>
-          <div className="text-xs text-gray-500">{t.empty}</div>
-        </div>
+        {/* Sections */}
+        <HomeSection
+          title={t.explore}
+          action="20+ spots"
+          onAction={() => onNavigate("campus")}
+          items={[
+            { title: "Libraries", subtitle: "Study & relax" },
+            { title: "Cafeterias", subtitle: "Food & coffee" },
+          ]}
+        />
 
-        <div className="grid grid-cols-2 gap-3">
-          <button className="p-4 rounded-xl border bg-gray-50 text-left hover:bg-gray-100 transition">
-            <div className="text-lg">🗺️</div>
-            <div className="font-semibold text-gray-900 mt-1">
-              {language === "en" ? "Explore campus" : "Explorer le campus"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">
-              {language === "en" ? "Maps & spots" : "Cartes & endroits"}
-            </div>
-          </button>
+        <HomeSection
+          title={t.forum}
+          action="Active"
+          onAction={() => onNavigate("forum")}
+          items={[
+            { title: "Housing tips", subtitle: "Ask & share" },
+            { title: "First-year help", subtitle: "Student advice" },
+          ]}
+        />
 
-          <button className="p-4 rounded-xl border bg-gray-50 text-left hover:bg-gray-100 transition">
-            <div className="text-lg">🎯</div>
-            <div className="font-semibold text-gray-900 mt-1">
-              {language === "en" ? "Join a challenge" : "Rejoindre un défi"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">
-              {language === "en" ? "Study & fun" : "Étude & fun"}
-            </div>
-          </button>
+        <HomeSection
+          title={t.matches}
+          action="New"
+          onAction={() => onNavigate("matches")}
+          items={[
+            { title: "Study buddies", subtitle: "Same program" },
+            { title: "Language exchange", subtitle: "Practice together" },
+          ]}
+        />
 
-          <button className="p-4 rounded-xl border bg-gray-50 text-left hover:bg-gray-100 transition">
-            <div className="text-lg">🤝</div>
-            <div className="font-semibold text-gray-900 mt-1">
-              {language === "en" ? "Find matches" : "Trouver des matchs"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">
-              {language === "en" ? "Meet students" : "Rencontrer des étudiants"}
-            </div>
-          </button>
-
-          <button className="p-4 rounded-xl border bg-gray-50 text-left hover:bg-gray-100 transition">
-            <div className="text-lg">💬</div>
-            <div className="font-semibold text-gray-900 mt-1">
-              {language === "en" ? "Join forum" : "Rejoindre le forum"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">
-              {language === "en" ? "Ask & share" : "Demander & partager"}
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Highlights */}
-      <div className="bg-white rounded-2xl border shadow-sm p-4">
-        <div className="font-semibold text-gray-900 mb-3">{t.highlights}</div>
-        <div className="space-y-3">
-          <div className="p-4 rounded-xl border bg-white">
-            <div className="text-sm font-semibold text-gray-900">
-              {language === "en" ? "Welcome Week" : "Semaine d’accueil"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">{t.empty}</div>
-          </div>
-
-          <div className="p-4 rounded-xl border bg-white">
-            <div className="text-sm font-semibold text-gray-900">
-              {language === "en" ? "Campus tips" : "Astuces campus"}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">{t.empty}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Upcoming */}
-      <div className="bg-white rounded-2xl border shadow-sm p-4">
-        <div className="font-semibold text-gray-900 mb-3">{t.upcoming}</div>
-        <div className="p-4 rounded-xl border bg-gray-50 text-sm text-gray-700">
-          {t.empty}
-        </div>
+        <HomeSection
+          title={t.events}
+          action="Soon"
+          onAction={() => onNavigate("events")}
+          items={[
+            { title: "Cultural events", subtitle: "Campus life" },
+            { title: "Workshops", subtitle: "Learn & grow" },
+          ]}
+        />
       </div>
     </div>
   );
 };
 
 export default HomeView;
+
+/* ---------- Reusable Section ---------- */
+
+const HomeSection = ({
+  title,
+  action,
+  onAction,
+  items,
+}: {
+  title: string;
+  action: string;
+  onAction: () => void;
+  items: { title: string; subtitle: string }[];
+}) => (
+  <section className="space-y-3">
+    <div className="flex items-center justify-between">
+      <h2 className="font-semibold text-gray-900">{title}</h2>
+      <button
+        onClick={onAction}
+        className="text-sm text-blue-600 hover:underline"
+      >
+        {action}
+      </button>
+    </div>
+
+    <div className="flex gap-4 overflow-x-auto pb-2">
+      {items.map((item, i) => (
+        <div
+          key={i}
+          className="min-w-[180px] lg:min-w-[240px] rounded-xl border bg-white p-4 shadow-sm"
+        >
+          <div className="font-semibold text-gray-900 text-sm">
+            {item.title}
+          </div>
+          <div className="text-xs text-gray-600 mt-1">
+            {item.subtitle}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+);
